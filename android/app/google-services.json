@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "453666377883",
+    "firebase_url": "https://iot9systemintegration-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "iot9systemintegration",
+    "storage_bucket": "iot9systemintegration.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453666377883:android:97c330925e34d6a300b63e",
+        "android_client_info": {
+          "package_name": "com.godrej.advantis_iot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXGKUr2SIsFsNhwOyI0q1dBbJ-yLJLH9k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
