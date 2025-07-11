@@ -87,6 +87,8 @@ class WebApi {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
+
+      Provider.of<AppState>(context, listen: false).spinner = false;
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = jsonDecode(
           response.body,
@@ -97,17 +99,10 @@ class WebApi {
           'Acess Token is ------------------- $extractedAccessToken --------------------------',
         );
         Provider.of<AppState>(context, listen: false).accessToken = extractedAccessToken!;
-        Provider.of<AppState>(context, listen: false).spinner = false;
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LandingScreen(),
-          ),
-        );
+        Navigator.pushNamed(context, '/landing');
 
       }else{
-        Provider.of<AppState>(context, listen: false).spinner = false;
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
@@ -130,9 +125,7 @@ class WebApi {
 
   Future<void> getLockList(BuildContext context) async{
     {
-      Provider.of<AppState>(context, listen: false).spinner = true;
       String accessToken = Provider.of<AppState>(context,listen: false).accessToken;
-
 
       try {
         response = await http.get(
@@ -159,14 +152,71 @@ class WebApi {
         print('Response status: ${response.statusCode}');
         print('Response body: ${response.body}');
 
-        Provider.of<AppState>(context, listen: false).spinner = false;
 
       } catch (e) {
         print('Error making GET request: $e');
-        Provider.of<AppState>(context, listen: false).spinner = false;
-
       }
     }
+  }
+
+  Future<void> unlockDoor(BuildContext context) async{
+    Provider.of<AppState>(context, listen: false).spinner = true;
+    String lockID = Provider.of<AppState>(context,listen: false).lockID;
+    String tokens = Provider.of<AppState>(context,listen: false).accessToken;
+
+      print(lockID);
+      Map<String, dynamic> requestBody = {
+        'LOCK_ID': lockID.toString(),
+      };
+
+      String jsonBody = jsonEncode(requestBody);
+
+      try {
+        response = await http.post(
+          // Changed from http.get to http.post
+          Uri.parse(
+            '$baseUrl/integrators/v1/lock/${lockID}/unlock-request',
+          ),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'Authorization': 'Bearer $tokens',
+            'LOCK_ID': lockID,
+          },
+          body: jsonBody, // Add the encoded body here
+        );
+
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          print('Lock Unlocked Successfully !!!');
+          Provider.of<AppState>(context, listen: false).spinner = false;
+        }else{
+          Provider.of<AppState>(context, listen: false).spinner = false;
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Error',
+            text:"Failed to open the door",
+            confirmBtnColor: Colors.red,
+          );
+        }
+      } catch (e) {
+        print('Error making POST request: $e');
+        Provider.of<AppState>(context, listen: false).spinner = false;
+
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text:e.toString(),
+          confirmBtnColor: Colors.red,
+        );
+
+
+      }
+
   }
 
 }

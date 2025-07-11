@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:flutter/services.dart';
+import 'package:advantis_iot/utils/app_state.dart';
 
 class MenuWidget extends StatefulWidget {
   const MenuWidget({super.key});
@@ -110,14 +111,22 @@ class _MenuWidgetState extends State<MenuWidget> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Card(
-                child: Container(
-                  padding: const EdgeInsets.all(15.0),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.logout),
-                      Text('  Logout'),
-                    ],
+                child: GestureDetector(
+                  onTap: (){
+
+                    Provider.of<AppState>(context, listen: false).otpSent = false;
+
+                    Navigator.pushNamed(context, '/home');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(15.0),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.logout),
+                        Text('  Logout'),
+                      ],
+                    ),
                   ),
                 ),
               ),

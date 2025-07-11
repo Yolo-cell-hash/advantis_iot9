@@ -36,8 +36,8 @@ class _HomeScreenState extends State<HomeScreen>
   bool spinner = false;
   dynamic tokens;
   dynamic dbResponse1;
-  late DatabaseReference _dbRef1;
-  StreamSubscription<DatabaseEvent>? _dbSubscription;
+  late DatabaseReference _dbRef,_dbRef1;
+  StreamSubscription<DatabaseEvent>? _dbSubscription,_dbSubscription1;
 
   final buttonStyleEnabled = ElevatedButton.styleFrom(
     backgroundColor: Colors.transparent,
@@ -88,15 +88,23 @@ class _HomeScreenState extends State<HomeScreen>
         databaseURL:
             'https://iot9systemintegration-default-rtdb.asia-southeast1.firebasedatabase.app/',
       );
-      _dbRef1 = database.ref("isWindowOpen");
+      _dbRef1 = database.ref("updates");
 
       _dbSubscription = _dbRef1.onValue.listen(
         (DatabaseEvent event) {
           if (mounted) {
-            // Check if the widget is still in the tree
             setState(() {
               if (event.snapshot.exists) {
                 dbResponse1 = event.snapshot.value;
+
+                print('DATABASE SNAPSHOT IS $dbResponse1');
+                Provider.of<AppState>(context, listen: false).setUpdates(dbResponse1);
+
+                print("VALUE STORED IN PROVIDER IS -------------- ${Provider
+                    .of<AppState>(context, listen: false)
+                    .update}");
+
+
                 if (dbResponse1.toString() == "true") {
                   QuickAlert.show(
                     context: context,
@@ -110,9 +118,8 @@ class _HomeScreenState extends State<HomeScreen>
               } else {
                 dbResponse1 = null; // Or handle as "No data"
                 print("No data at path");
+                Provider.of<AppState>(context, listen: false).setUpdates(null);
               }
-              spinner =
-                  false; // Assuming you might still use spinner for initial load elsewhere
             });
           }
         },
@@ -140,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     controller.dispose();
     _dbSubscription?.cancel(); // Cancel the database listener
+    _dbSubscription1?.cancel();
     super.dispose();
   }
 
@@ -168,131 +176,18 @@ class _HomeScreenState extends State<HomeScreen>
             DatabaseReference ref = FirebaseDatabase.instance.ref();
 
             return Scaffold(
+              resizeToAvoidBottomInset: false,
               body: ModalProgressHUD(
                 inAsyncCall: isLoading,
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 15.0,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        IpPortTextfield(
-                          onChanged:
-                              !wasOtpSent ? (() async => await webApi.requestOTP(context)): (() async => await webApi.verifyOTP(context,typedOTP)),
-                          label: !wasOtpSent ? 'Phone Number' : 'OTP',
-                          btnLabel: !wasOtpSent ? 'Request OTP' : 'Verify OTP',
-                        ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed:
+                        const BrandLogoName(),
+                        const PrivacyConditionsHyper(),
 
-                              () async {
-                            setState(() {
-                              spinner = true;
-                            });
-
-                            try {
-                              response = await http.get(
-                                Uri.parse('$baseUrl/integrators/v1/lock/list'),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  'Authorization': '$tokenType $tokens',
-                                },
-                              );
-                              setState(() {
-                                showResponse = true;
-                              });
-
-                              if (response.statusCode == 200) {
-                                List<dynamic> responseData = jsonDecode(
-                                  response.body,
-                                );
-                                Map<String, dynamic> lockId = responseData[0];
-                                String? _lockId = lockId['lockId'];
-                                print(
-                                  'Lock ID is ------------------- $_lockId --------------------------',
-                                );
-
-                                setState(() {
-                                  lockID = _lockId;
-                                });
-                              }
-
-                              print('Response status: ${response.statusCode}');
-                              print('Response body: ${response.body}');
-
-                              setState(() {
-                                spinner = false;
-                              });
-                            } catch (e) {
-                              print('Error making GET request: $e');
-                              // Handle error appropriately, e.g., show a message to the user
-                              setState(() {
-                                showResponse = false; // Or handle error display
-                              });
-                              setState(() {
-                                spinner = false;
-                              });
-                            }
-                          },
-                          child: Text('Get Lock List'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            setState(() {
-                              spinner = true;
-                            });
-                            print(lockID);
-                            Map<String, dynamic> requestBody = {
-                              'LOCK_ID': lockID.toString(),
-                            };
-
-                            String jsonBody = jsonEncode(requestBody);
-
-                            try {
-                              response = await http.post(
-                                // Changed from http.get to http.post
-                                Uri.parse(
-                                  '$baseUrl/integrators/v1/lock/${lockID}/unlock-request',
-                                ),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  'x-api-key': apiKey,
-                                  'Authorization': '$tokenType $tokens',
-                                  'LOCK_ID': lockID,
-                                },
-                                body: jsonBody, // Add the encoded body here
-                              );
-                              setState(() {
-                                showResponse = true;
-                              });
-                              print('Response status: ${response.statusCode}');
-                              print('Response body: ${response.body}');
-
-                              if (response.statusCode == 200) {
-                                print('Lock Unlocked Successfully !!!');
-                              }
-
-                              setState(() {
-                                spinner = false;
-                              });
-                            } catch (e) {
-                              print('Error making POST request: $e');
-                              // Handle error appropriately, e.g., show a message to the user
-                              setState(() {
-                                showResponse = false; // Or handle error display
-                              });
-                              setState(() {
-                                spinner = false;
-                              });
-                            }
-                          },
-                          child: Text('Unlock Door'),
-                        ),
                         // ElevatedButton(
                         //   onPressed: () async {
                         //     setState(() {
@@ -379,16 +274,34 @@ class _HomeScreenState extends State<HomeScreen>
                         //   },
                         //   child: Text('Get Activity Trials'),
                         // ),
-                        Divider(height: 10.0),
-                        if (dbResponse1 != null)
-                          SelectableText(dbResponse1.toString()),
-                        Divider(height: 10.0),
+
+                        //--------------------------------------------DB FETCH RESPONSE--------------------------
+                        // if (dbResponse1 != null)
+                        //   SelectableText(dbResponse1.toString()),
+                        // Divider(height: 10.0),
 
                         // ElevatedButton(onPressed: showDoneDialog, child: Text('Unlock Door')),
-                        // Center(child: Lottie.asset('animations/lock.json'),)
                       ],
                     ),
-                  ),
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.18,
+                      left: 0,
+                      right: 0,
+                      child: IpPortTextfield(
+                        onChanged:
+                        !wasOtpSent
+                            ? (() async =>
+                        await webApi.requestOTP(context))
+                            : (() async => await webApi.verifyOTP(
+                          context,
+                          typedOTP,
+                        )),
+                        label: !wasOtpSent ? 'Phone Number' : 'OTP',
+                        btnLabel:
+                        !wasOtpSent ? 'Request OTP' : 'Verify OTP',
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );

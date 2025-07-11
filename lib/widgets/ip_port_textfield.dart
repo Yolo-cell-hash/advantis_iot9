@@ -95,7 +95,7 @@ class _IpPortTextfieldState extends State<IpPortTextfield> {
                                     typed_value = value;
                                     Provider.of<AppState>(context, listen: false).phoneNumber = value;
                                   },
-                                  keyboardType: TextInputType.text,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     hintText: widget.label,
                                     enabled: true,
@@ -126,7 +126,7 @@ class _IpPortTextfieldState extends State<IpPortTextfield> {
                                   onChanged: (value) {
                                     Provider.of<AppState>(context, listen: false).otp = value;
                                   },
-                                  keyboardType: TextInputType.text,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     hintText: widget.label,
                                     enabled: true,

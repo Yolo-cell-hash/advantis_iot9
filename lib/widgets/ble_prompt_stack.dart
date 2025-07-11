@@ -77,10 +77,7 @@ class _BlePromptStackState extends State<BlePromptStack> {
                 child: ElevatedButton(
                   style: buttonStyleEnabled,
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    );
+                    Navigator.pushNamed(context, '/home');
                   },
                   child: const Text(
                     'Start Configuration',

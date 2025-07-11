@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:advantis_iot/screens/home_screen.dart';
+import 'package:advantis_iot/utils/web_api_brain.dart';
+import 'package:advantis_iot/utils/app_state.dart';
+import 'package:animate_do/animate_do.dart';
 
 class RoomInfoCard extends StatefulWidget {
 
@@ -11,20 +14,28 @@ class RoomInfoCard extends StatefulWidget {
 
 class _RoomInfoCardState extends State<RoomInfoCard> {
 
+  WebApi webApi = WebApi();
+  dynamic lightsStatus, isWindowOpen,isFire;
+
+  final buttonStyleEnabled = ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue,
+    shadowColor: Colors.blue,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    minimumSize: const Size(double.infinity, 50),
+  );
+
   @override
   Widget build(BuildContext context) {
+    dynamic isFire = Provider.of<AppState>(context, listen: false).update['isFire'];
+    dynamic isWindowOpen = Provider.of<AppState>(context,listen: false).update['isWindowOpen'];
+    dynamic lightsStatus = Provider.of<AppState>(context,listen: false).update['lightsStatus'];
+
 
 
     return GestureDetector(
       onTap: () async{
         print('Button Clicked');
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) =>
-        //     const ConnectedScreen(),
-        //   ),
-        // );
+        webApi.unlockDoor(context);
       },
       child: Card(
         elevation: 5,
@@ -104,64 +115,73 @@ class _RoomInfoCardState extends State<RoomInfoCard> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Stay Duration',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                  Text(
-                    'checkIn - Checkout',
-                    style: const TextStyle(color: Colors.black),
-                    textAlign: TextAlign.left,
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 15.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Check In Time',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                      Text(
-                        'checkInTime',
-                        style: const TextStyle(color: Colors.black),
-                        textAlign: TextAlign.left,
-                      )
-                    ],
+                  
+                  Tada(
+                    infinite: true,
+                    animate: isFire.toString()=='true' ? true: false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.local_fire_department_rounded,size: 27,color: (Provider.of<AppState>(context, listen: true).update['isFire']).toString() =="true"? Colors.red : Colors.grey,),
+                        Text('Fire Sensor'),
+                      ],
+                    ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Check Out Time',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                      Text(
-                        'checkOutTime',
-                        style: const TextStyle(color: Colors.black),
-                        textAlign: TextAlign.left,
-                      )
-                    ],
+                  Tada(
+                    infinite: true,
+                    animate: isWindowOpen.toString()=='true'? true : false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.sensor_window,size: 27,color: ( Provider.of<AppState>(context,listen: true).update['isWindowOpen']).toString() =="true"? Colors.red : Colors.grey,),
+                        Text('Window Sensor'),
+                      ],
+                    ),
                   ),
+                  Tada(
+                    infinite: true,
+                    animate: lightsStatus.toString()=='true'? true : false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.ac_unit,size: 27,color: (Provider.of<AppState>(context,listen: true).update['lightsStatus']).toString()=='true'? Colors.yellow: Colors.grey,),
+                        Text('AC Unit'),
+                      ],
+                    ),
+                  ),
+
+                  
                 ],
               ),
             ),
-            const SizedBox(height: 20,)
+            const SizedBox(height: 20,),
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.blue, Colors.lightBlueAccent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ElevatedButton(
+                onPressed:(){
+                  webApi.unlockDoor(context);
+                },
+                style: buttonStyleEnabled,
+                child:  Text(
+                  "UNLOCK DOOR",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+
           ],
         ),
       ),
