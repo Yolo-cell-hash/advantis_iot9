@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:advantis_iot/utils/app_state.dart';
 import 'package:advantis_iot/utils/web_api_brain.dart';
+import 'package:elegant_notification/elegant_notification.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

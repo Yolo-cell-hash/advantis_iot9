@@ -5,6 +5,9 @@ import 'package:advantis_iot/screens/home_screen.dart';
 import 'package:advantis_iot/utils/web_api_brain.dart';
 import 'package:advantis_iot/utils/app_state.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:elegant_notification/elegant_notification.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 
 class RoomInfoCard extends StatefulWidget {
 
@@ -15,6 +18,8 @@ class RoomInfoCard extends StatefulWidget {
 class _RoomInfoCardState extends State<RoomInfoCard> {
 
   WebApi webApi = WebApi();
+  Vibration vibration = Vibration();
+
   dynamic lightsStatus, isWindowOpen,isFire;
 
   final buttonStyleEnabled = ElevatedButton.styleFrom(
@@ -24,6 +29,12 @@ class _RoomInfoCardState extends State<RoomInfoCard> {
     minimumSize: const Size(double.infinity, 50),
   );
 
+  Future<void> _vibrateDevice() async {
+    if (await Vibration.hasVibrator()) {
+      Vibration.vibrate(preset: VibrationPreset.emergencyAlert);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     dynamic isFire = Provider.of<AppState>(context, listen: false).update['isFire'];
@@ -31,6 +42,9 @@ class _RoomInfoCardState extends State<RoomInfoCard> {
     dynamic lightsStatus = Provider.of<AppState>(context,listen: false).update['lightsStatus'];
 
 
+    if ((Provider.of<AppState>(context,listen: true).update['isFire']).toString() == 'true' || (Provider.of<AppState>(context,listen: true).update['isWindowOpen']).toString() == 'true') {
+      _vibrateDevice();
+    }
 
     return GestureDetector(
       onTap: () async{
@@ -150,7 +164,7 @@ class _RoomInfoCardState extends State<RoomInfoCard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(Icons.ac_unit,size: 27,color: (Provider.of<AppState>(context,listen: true).update['lightsStatus']).toString()=='true'? Colors.yellow: Colors.grey,),
+                        Icon(Icons.ac_unit,size: 27,color: (Provider.of<AppState>(context,listen: true).update['lightsStatus']).toString()=='true'? Colors.cyan: Colors.grey,),
                         Text('AC Unit'),
                       ],
                     ),
@@ -173,6 +187,10 @@ class _RoomInfoCardState extends State<RoomInfoCard> {
               child: ElevatedButton(
                 onPressed:(){
                   webApi.unlockDoor(context);
+
+                  ElegantNotification(
+                      description:  Text("Please verifiy your data")
+                  ).show(context);
                 },
                 style: buttonStyleEnabled,
                 child:  Text(

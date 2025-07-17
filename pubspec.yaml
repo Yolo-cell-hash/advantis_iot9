@@ -44,6 +44,9 @@ dependencies:
   animate_do: ^4.2.0
   flutter_svg: ^2.0.16
   firebase_database: ^11.3.9
+  elegant_notification: ^2.5.1
+  vibration: ^3.1.3
+
 
 
 
