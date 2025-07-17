@@ -43,6 +43,7 @@ class _IpPortTextfieldState extends State<IpPortTextfield> {
   @override
   Widget build(BuildContext context) {
     bool wasOtpSent = Provider.of<AppState>(context).otpSent;
+    String accessToken = Provider.of<AppState>(context).accessToken;
     return FadeIn(
       child: Column(
         children: [

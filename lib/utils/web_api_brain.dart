@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:advantis_iot/utils/app_state.dart';
@@ -60,12 +62,12 @@ class WebApi {
     // print(response.body);
   }
 
-  Future<void> verifyOTP(BuildContext context,dynamic otp) async {
-    String phoneNumber = Provider.of<AppState>(context,listen: false).phoneNumber;
+  Future<void> verifyOTP(BuildContext context, dynamic otp) async {
+    String phoneNumber = Provider.of<AppState>(context, listen: false).phoneNumber;
     Provider.of<AppState>(context, listen: false).spinner = true;
     Map<String, dynamic> requestBody = {
       'countryCode': '+91', // Dummy country code
-      'phoneNumber': phoneNumber, // Dummy phone number
+      'phoneNumber': phoneNumber,
       'otp': otp,
     };
 
@@ -73,41 +75,54 @@ class WebApi {
 
     try {
       response = await http.post(
-        // Changed from http.get to http.post
-        Uri.parse(
-          '$baseUrl/integrators/v1/auth/verify-otp',
-        ),
+        Uri.parse('$baseUrl/integrators/v1/auth/verify-otp'),
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
-        body: jsonBody, // Add the encoded body here
+        body: jsonBody,
       );
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-
       Provider.of<AppState>(context, listen: false).spinner = false;
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseData = jsonDecode(
-          response.body,
-        );
-        String? extractedAccessToken =
-        responseData['accessToken'];
-        print(
-          'Acess Token is ------------------- $extractedAccessToken --------------------------',
-        );
-        Provider.of<AppState>(context, listen: false).accessToken = extractedAccessToken!;
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        String? extractedAccessToken = responseData['accessToken'];
+        print('Access Token is ------------------- $extractedAccessToken --------------------------');
 
-        Navigator.pushNamed(context, '/landing');
+        if (extractedAccessToken != null) {
+          Provider.of<AppState>(context, listen: false).accessToken = extractedAccessToken;
+          try {
+            FirebaseDatabase database = FirebaseDatabase.instanceFor(
+              app: Firebase.app(), // Assumes Firebase has been initialized
+              databaseURL: 'https://iot9systemintegration-default-rtdb.asia-southeast1.firebasedatabase.app/',
+            );
+            DatabaseReference tokenRef = database.ref("updates/accessToken"); // Or choose a more specific path
 
-      }else{
+            await tokenRef.set(extractedAccessToken);
+            print('Access Token successfully stored in Firebase at /updates/accessToken');
+
+          } catch (e) {
+            print('Error storing access token in Firebase: $e');
+          }
+          Navigator.pushNamed(context, '/landing');
+        } else {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Error',
+            text: "Access token not found in response.",
+            confirmBtnColor: Colors.red,
+          );
+        }
+      } else {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
           title: 'Error',
-          text:"Invalid OTP",
+          text: "Invalid OTP",
           confirmBtnColor: Colors.red,
         );
       }
@@ -118,7 +133,7 @@ class WebApi {
         context: context,
         type: QuickAlertType.error,
         title: 'Error',
-        text:e.toString(),
+        text: e.toString(),
       );
     }
   }

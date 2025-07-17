@@ -15,6 +15,7 @@ import 'package:advantis_iot/utils/app_state.dart';
 import 'package:advantis_iot/utils/web_api_brain.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen>
   dynamic lockID;
   bool spinner = false;
   dynamic tokens;
+  String? _token;
   dynamic dbResponse1;
   late DatabaseReference _dbRef,_dbRef1;
   StreamSubscription<DatabaseEvent>? _dbSubscription,_dbSubscription1;
@@ -46,7 +48,56 @@ class _HomeScreenState extends State<HomeScreen>
     minimumSize: const Size(double.infinity, 50),
   );
 
+  Future<void> handler(RemoteMessage message) async {
+    print('Title : ${message.notification!.title}');
+    print('Title : ${message.notification!.body}');
+  }
+
+  Future<void> fbPushNotification() async {
+    final firebaseMessaging = FirebaseMessaging.instance;
+    await firebaseMessaging.requestPermission();
+    FirebaseMessaging.onBackgroundMessage(handler);
+  }
+
+  Future<void> getNotifPermission()async{
+    var status = await Permission.notification.status;
+    if (status.isDenied) {
+      Permission.notification.request();
+    }
+    if (await Permission.location.isRestricted) {
+      Permission.notification.request();
+    }
+  }
+
+  Future<void> _getToken(String accessToken) async {
+    String? token = await FirebaseMessaging.instance.getToken();
+
+    if (token != null) {
+      try {
+        // _dbRef1 currently points to "updates"
+        // We will store the token as a key-value pair under "updates"
+        // For example: "updates": { "fcmDeviceToken": "your_actual_fcm_token_here", ...other data... }
+
+        // Use a specific key for the FCM token within the 'updates' path
+        // This will overwrite any existing value at 'updates/fcmDeviceToken'
+        await _dbRef1.child("fcmDeviceToken").set(token);
+        await _dbRef1.child('accessToken').set(accessToken);
+
+        setState(() {
+          _token = token;
+        });
+        print('FCM Token: $token successfully written to database at /updates/fcmDeviceToken');
+      } catch (e) {
+        print('Error writing FCM token to database: $e');
+        // Handle any errors
+      }
+    } else {
+      print('Failed to get FCM token.');
+    }
+  }
+
   WebApi webApi = WebApi();
+
 
   late Future<FirebaseApp> _initialization;
   void showDoneDialog() => showDialog(
@@ -77,6 +128,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
+    fbPushNotification();
+    getNotifPermission();
     controller = AnimationController(vsync: this);
     super.initState();
     _initialization = Firebase.initializeApp();
@@ -135,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen>
       );
     });
 
+    _getToken('abcdef');
+
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         Navigator.pop(context);
@@ -154,6 +209,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     bool isLoading = Provider.of<AppState>(context).spinner;
+
     return SafeArea(
       child: FutureBuilder(
         future: _initialization,
