@@ -14,6 +14,7 @@ import 'package:quickalert/quickalert.dart';
 import 'package:advantis_iot/utils/app_state.dart';
 import 'package:advantis_iot/utils/web_api_brain.dart';
 import 'package:elegant_notification/elegant_notification.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,8 +30,6 @@ class _HomeScreenState extends State<HomeScreen>
   bool showResponse = false;
   late AnimationController controller;
   bool showWeather = false;
-  static const String apiKey = 'e8q0y264i3nxjw2pn9p2pxtbo0ub4n3b';
-  static const String baseUrl = 'https://hmut-api-gdb2c.binary-labs.in';
   String tokenType = "Bearer";
   dynamic otp;
   dynamic lockID;
@@ -188,100 +187,6 @@ class _HomeScreenState extends State<HomeScreen>
                       children: [
                         const BrandLogoName(),
                         const PrivacyConditionsHyper(),
-
-                        // ElevatedButton(
-                        //   onPressed: () async {
-                        //     setState(() {
-                        //       spinner=true;
-                        //     });
-                        //     try {
-                        //       response = await http.get( // Changed from http.get to http.post
-                        //         Uri.parse('$baseUrl/integrators/v1/lock/${lockID}/status'),
-                        //         headers: {
-                        //           'Content-Type': 'application/json',
-                        //           'Authorization': '$tokenType $tokens',
-                        //         },
-                        //
-                        //       );
-                        //       setState(() {
-                        //         showResponse = true;
-                        //       });
-                        //
-                        //       if(response.statusCode == 200){
-                        //         print(response.body);
-                        //       }
-                        //
-                        //       print('Response status: ${response.statusCode}');
-                        //       print('Response body: ${response.body}');
-                        //
-                        //       setState(() {
-                        //         spinner=false;
-                        //       });
-                        //     } catch (e) {
-                        //       print('Error making GET request: $e');
-                        //       // Handle error appropriately, e.g., show a message to the user
-                        //       setState(() {
-                        //         showResponse = false; // Or handle error display
-                        //       });
-                        //       setState(() {
-                        //         spinner=false;
-                        //       });
-                        //     }
-                        //
-                        //   },
-                        //   child: Text('Get Lock Status'),
-                        // ),
-                        // ElevatedButton(
-                        //   onPressed: () async {
-                        //     setState(() {
-                        //       spinner=true;
-                        //     });
-                        //
-                        //     try {
-                        //       response = await http.get(
-                        //         Uri.parse('$baseUrl/integrators/v1/lock/$lockID/activity-trail?page=1'),
-                        //         headers: {
-                        //           'Content-Type': 'application/json',
-                        //           'LOCK_ID': lockID.toString(),
-                        //           'Authorization': '$tokenType $tokens',
-                        //         },
-                        //
-                        //       );
-                        //       setState(() {
-                        //         showResponse = true;
-                        //       });
-                        //
-                        //       if(response.statusCode == 200){
-                        //         print('Activites fetched');
-                        //       }
-                        //
-                        //       print('Response status: ${response.statusCode}');
-                        //       print('Response body: ${response.body}');
-                        //
-                        //       setState(() {
-                        //         spinner=false;
-                        //       });
-                        //     } catch (e) {
-                        //       print('Error making GET request: $e');
-                        //       // Handle error appropriately, e.g., show a message to the user
-                        //       setState(() {
-                        //         showResponse = false; // Or handle error display
-                        //       });
-                        //       setState(() {
-                        //         spinner=false;
-                        //       });
-                        //     }
-                        //
-                        //   },
-                        //   child: Text('Get Activity Trials'),
-                        // ),
-
-                        //--------------------------------------------DB FETCH RESPONSE--------------------------
-                        // if (dbResponse1 != null)
-                        //   SelectableText(dbResponse1.toString()),
-                        // Divider(height: 10.0),
-
-                        // ElevatedButton(onPressed: showDoneDialog, child: Text('Unlock Door')),
                       ],
                     ),
                     Positioned(
