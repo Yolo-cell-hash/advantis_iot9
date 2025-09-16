@@ -1,8 +1,12 @@
 /// Screen exports for Advantis IoT module
 /// 
-/// All screens available in the IoT module for device control,
+/// Essential and legacy screens for IoT device monitoring,
 /// user onboarding, and settings management.
 
+// Essential IoT monitoring screens
+export 'iot_monitoring_screen.dart';
+
+// Legacy screens (for backward compatibility)
 export 'splash_screen.dart';
 export 'home_screen.dart';
 export 'landing_screen.dart';

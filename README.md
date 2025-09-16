@@ -1,6 +1,6 @@
-# Advantis IoT Flutter Module
+# Advantis IoT Flutter Module - Simplified Integration
 
-A comprehensive Flutter module for IoT device control and monitoring with real-time Firebase integration, designed for seamless integration into existing Android applications.
+A lightweight Flutter module designed for seamless integration into existing Android applications, providing essential IoT device monitoring with real-time Firebase synchronization.
 
 ## Features
 

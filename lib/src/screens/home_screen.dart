@@ -72,22 +72,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     if (token != null) {
       try {
-        // _dbRef1 currently points to "updates"
-        // We will store the token as a key-value pair under "updates"
-        // For example: "updates": { "fcmDeviceToken": "your_actual_fcm_token_here", ...other data... }
-
-        // Use a specific key for the FCM token within the 'updates' path
-        // This will overwrite any existing value at 'updates/fcmDeviceToken'
-        await _dbRef1.child("fcmDeviceToken").set(token);
-        await _dbRef1.child('accessToken').set(accessToken);
-
-        setState(() {
-          _token = token;
-        });
-        print('FCM Token: $token successfully written to database at /updates/fcmDeviceToken');
+        // Use the Firebase service to store tokens
+        await FirebaseService.instance.storeAccessToken(accessToken);
+        print('FCM Token: $token successfully written to database');
       } catch (e) {
         print('Error writing FCM token to database: $e');
-        // Handle any errors
       }
     } else {
       print('Failed to get FCM token.');
