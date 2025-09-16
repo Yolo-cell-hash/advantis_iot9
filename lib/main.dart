@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:advantis_iot/advantis_iot.dart';
 
-/// Example implementation of the Advantis IoT module
+/// Example implementation of the simplified Advantis IoT module
 /// 
-/// This demonstrates how to use the module in a Flutter app.
-/// For production use, call AdvantisIoTModule.initialize() in your main app
-/// and use individual screens as needed.
+/// This demonstrates the minimal setup needed to use the IoT monitoring
+/// functionality in a Flutter app or Android integration.
 void main() async {
-  await AdvantisIoTModule.initialize();
-  runApp(const MyApp());
+  // Initialize the core IoT module with Android integration support
+  await CoreIoTModule.initialize(enableAndroidIntegration: true);
+  
+  runApp(const IoTExampleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class IoTExampleApp extends StatelessWidget {
+  const IoTExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AdvantisIoTModule.createApp();
+    return MaterialApp(
+      title: 'Advantis IoT Module',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      // Use the standalone IoT monitoring screen directly
+      home: const StandaloneIoTScreen(
+        title: 'IoT Device Monitoring',
+      ),
+    );
   }
 }

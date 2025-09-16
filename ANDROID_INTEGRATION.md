@@ -1,14 +1,17 @@
-# Android Integration Guide
+# Android Integration Guide - Simplified
 
-This guide shows how to integrate the Advantis IoT Flutter module into an existing Android application.
+This guide shows how to integrate the streamlined Advantis IoT Flutter module into an existing Android application with minimal setup.
 
-## Prerequisites
+## Overview
 
-1. An existing Android project with Flutter module support
-2. Firebase configuration for your Android app
-3. Proper permissions in your Android manifest
+The Advantis IoT module has been optimized for easy integration, focusing on essential IoT monitoring features:
+- 🔥 Fire detection monitoring
+- 🪟 Window status tracking  
+- 💡 Lights control monitoring
+- 🔗 Real-time Firebase synchronization
+- 📱 Android method channel communication
 
-## Setup Steps
+## Quick Setup
 
 ### 1. Add Flutter Module to Android Project
 
@@ -30,41 +33,70 @@ dependencies {
 }
 ```
 
-### 2. Initialize the Module
-
-In your Android Activity or Application class:
+### 2. Minimal Android Integration
 
 ```kotlin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var flutterEngine: FlutterEngine
+    private lateinit var iotDataChannel: MethodChannel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        initializeIoTModule()
+    }
+    
+    private fun initializeIoTModule() {
         // Initialize Flutter engine
         flutterEngine = FlutterEngine(this)
         flutterEngine.dartExecutor.executeDartEntrypoint(
             DartExecutor.DartEntrypoint.createDefault()
         )
         
-        // Cache the engine for reuse
+        // Cache for reuse
         FlutterEngineCache.getInstance().put("advantis_iot_engine", flutterEngine)
         
-        setContentView(R.layout.activity_main)
+        // Setup data communication
+        setupIoTDataChannel()
+    }
+    
+    private fun setupIoTDataChannel() {
+        iotDataChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "advantis_iot/data"
+        )
+        
+        // Listen for real-time IoT updates
+        iotDataChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "onStateChanged" -> {
+                    val stateData = call.arguments as? Map<String, Any>
+                    handleIoTUpdate(stateData)
+                    result.success(true)
+                }
+                "onAlert" -> {
+                    val alertData = call.arguments as? Map<String, Any>
+                    handleIoTAlert(alertData)
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 }
 ```
 
-### 3. Launch Individual Screens
+### 3. Launch IoT Monitoring
 
-#### Method 1: Direct Screen Launch
+#### Option A: Full Screen IoT Dashboard
 ```kotlin
-fun openIoTHomeScreen() {
+fun launchIoTMonitoring() {
     startActivity(
         FlutterActivity
             .withCachedEngine("advantis_iot_engine")
@@ -73,60 +105,78 @@ fun openIoTHomeScreen() {
 }
 ```
 
-#### Method 2: Using Method Channels for Specific Screens
+#### Option B: Get Real-time Data
 ```kotlin
-import io.flutter.plugin.common.MethodChannel
-
-class IoTModuleManager(private val flutterEngine: FlutterEngine) {
-    private val methodChannel = MethodChannel(
-        flutterEngine.dartExecutor.binaryMessenger,
-        "advantis_iot/navigation"
-    )
-    
-    fun openHomeScreen() {
-        methodChannel.invokeMethod("openHomeScreen", null)
-    }
-    
-    fun openSettingsScreen() {
-        methodChannel.invokeMethod("openSettingsScreen", null)
-    }
-    
-    fun getCurrentState(): Map<String, Any>? {
-        return methodChannel.invokeMethod("getCurrentState", null)
-    }
-}
-```
-
-### 4. Handle State Communication
-
-#### Get Real-time IoT Data
-```kotlin
-fun setupStateListener() {
-    methodChannel.setMethodCallHandler { call, result ->
-        when (call.method) {
-            "onStateChanged" -> {
-                val stateData = call.arguments as? Map<String, Any>
-                handleIoTStateUpdate(stateData)
-                result.success(true)
-            }
-            else -> result.notImplemented()
+fun getCurrentIoTState() {
+    iotDataChannel.invokeMethod("getCurrentState", null) { result ->
+        if (result is Map<*, *>) {
+            val fireStatus = result["isFire"]
+            val windowStatus = result["isWindowOpen"] 
+            val lightsStatus = result["lightsStatus"]
+            
+            // Update your Android UI
+            updateUIWithIoTData(fireStatus, windowStatus, lightsStatus)
         }
     }
 }
+```
 
-private fun handleIoTStateUpdate(stateData: Map<String, Any>?) {
+#### Option C: Control Monitoring
+```kotlin
+// Start Firebase monitoring
+fun startIoTMonitoring() {
+    iotDataChannel.invokeMethod("startFirebaseStreams", null)
+}
+
+// Stop monitoring to save resources
+fun stopIoTMonitoring() {
+    iotDataChannel.invokeMethod("stopFirebaseStreams", null)
+}
+```
+
+## Real-time Data Handling
+
+### Handle IoT State Updates
+```kotlin
+private fun handleIoTUpdate(stateData: Map<String, Any>?) {
     stateData?.let { data ->
-        val windowOpen = data["isWindowOpen"]
-        val fireStatus = data["isFire"]
-        val lightsStatus = data["lightsStatus"]
+        // Fire detection
+        data["isFire"]?.let { isFire ->
+            if (isFire == true) {
+                showFireAlert()
+            }
+        }
         
-        // Update your Android UI based on IoT data
-        updateUIWithIoTData(windowOpen, fireStatus, lightsStatus)
+        // Window status
+        data["isWindowOpen"]?.let { isOpen ->
+            updateWindowStatus(isOpen as Boolean)
+        }
+        
+        // Lights status
+        data["lightsStatus"]?.let { lightsOn ->
+            updateLightsStatus(lightsOn as Boolean)
+        }
+        
+        // Update UI with latest data
+        updateDashboard(data)
+    }
+}
+
+private fun handleIoTAlert(alertData: Map<String, Any>?) {
+    alertData?.let { data ->
+        val type = data["type"] as? String
+        val message = data["message"] as? String
+        
+        when (type) {
+            "critical" -> showCriticalAlert(message ?: "Critical IoT Alert")
+            "warning" -> showWarningAlert(message ?: "IoT Warning")
+            else -> showInfoAlert(message ?: "IoT Notification")
+        }
     }
 }
 ```
 
-### 5. Required Permissions
+## Required Permissions
 
 Add these permissions to your `AndroidManifest.xml`:
 
@@ -136,149 +186,121 @@ Add these permissions to your `AndroidManifest.xml`:
 <uses-permission android:name="android.permission.WAKE_LOCK" />
 <uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
-### 6. Firebase Configuration
+## Firebase Configuration
 
-Ensure your Android app has the `google-services.json` file in the `app/` directory and the Firebase plugin is configured:
+1. Add your `google-services.json` file to the `app/` directory
+2. Configure Firebase in your project-level `build.gradle`:
 
 ```gradle
-// In project-level build.gradle
 buildscript {
     dependencies {
         classpath 'com.google.gms:google-services:4.3.15'
     }
 }
+```
 
-// In app-level build.gradle
+3. Apply the plugin in your app-level `build.gradle`:
+```gradle
 apply plugin: 'com.google.gms.google-services'
 ```
 
 ## Usage Examples
 
-### Basic Integration
-
+### Basic Integration Example
 ```kotlin
 class IoTManager(private val context: Context) {
-    private lateinit var flutterEngine: FlutterEngine
-    private lateinit var iotModule: IoTModuleManager
-    
-    fun initialize() {
-        flutterEngine = FlutterEngine(context)
-        flutterEngine.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint.createDefault()
-        )
-        iotModule = IoTModuleManager(flutterEngine)
+    fun initialize(): Boolean {
+        return try {
+            initializeIoTModule()
+            true
+        } catch (e: Exception) {
+            Log.e("IoTManager", "Failed to initialize IoT module: $e")
+            false
+        }
     }
     
     fun showIoTDashboard() {
-        val intent = FlutterActivity
-            .withCachedEngine("advantis_iot_engine")
-            .build(context)
-        context.startActivity(intent)
+        launchIoTMonitoring()
     }
     
     fun getLatestIoTData(): Map<String, Any>? {
-        return iotModule.getCurrentState()
+        return getCurrentIoTState()
+    }
+    
+    fun startMonitoring() {
+        startIoTMonitoring()
+    }
+    
+    fun stopMonitoring() {
+        stopIoTMonitoring()
     }
 }
 ```
 
-### Advanced State Management
-
+### Repository Pattern Example
 ```kotlin
-class IoTDataRepository {
-    private val iotManager = IoTModuleManager(flutterEngine)
-    private val _iotData = MutableLiveData<IoTState>()
-    val iotData: LiveData<IoTState> = _iotData
+class IoTRepository {
+    private val _iotState = MutableLiveData<IoTState>()
+    val iotState: LiveData<IoTState> = _iotState
     
     fun startMonitoring() {
-        // Start Firebase streams in Flutter module
-        iotManager.startFirebaseStreams()
-        
-        // Set up listener for state changes
         setupStateListener()
+        startIoTMonitoring()
     }
     
     private fun setupStateListener() {
-        // Listen for state changes from Flutter module
-        iotManager.setStateChangeListener { stateData ->
-            val iotState = IoTState(
-                windowOpen = stateData["isWindowOpen"] as? Boolean,
+        // Real-time updates from Flutter module
+        handleIoTUpdate { stateData ->
+            val state = IoTState(
                 fireDetected = stateData["isFire"] as? Boolean,
+                windowOpen = stateData["isWindowOpen"] as? Boolean,
                 lightsOn = stateData["lightsStatus"] as? Boolean,
                 lastUpdated = Date()
             )
-            _iotData.postValue(iotState)
+            _iotState.postValue(state)
         }
     }
 }
+
+data class IoTState(
+    val fireDetected: Boolean?,
+    val windowOpen: Boolean?,
+    val lightsOn: Boolean?,
+    val lastUpdated: Date
+)
 ```
 
-## Method Channel Implementation
+## Key Benefits
 
-Add this to your Flutter module's main.dart for Android communication:
-
-```dart
-import 'package:flutter/services.dart';
-
-class AndroidIntegration {
-  static const MethodChannel _channel = MethodChannel('advantis_iot/navigation');
-  
-  static void setupMethodChannels() {
-    _channel.setMethodCallHandler(_handleMethodCall);
-  }
-  
-  static Future<dynamic> _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'openHomeScreen':
-        // Navigate to home screen
-        return true;
-      case 'openSettingsScreen':
-        // Navigate to settings screen
-        return true;
-      case 'getCurrentState':
-        return AdvantisIoTModule.getCurrentState();
-      default:
-        throw PlatformException(
-          code: 'UNIMPLEMENTED',
-          details: 'Method ${call.method} not implemented',
-        );
-    }
-  }
-  
-  static void sendStateUpdate(Map<String, dynamic> state) {
-    _channel.invokeMethod('onStateChanged', state);
-  }
-}
-```
-
-## Best Practices
-
-1. **Cache Flutter Engines**: Reuse Flutter engines to avoid initialization overhead
-2. **Handle Lifecycle**: Properly manage Flutter engine lifecycle in your activities
-3. **State Synchronization**: Use method channels for bidirectional communication
-4. **Error Handling**: Implement proper error handling for Firebase and network issues
-5. **Performance**: Monitor memory usage when using multiple Flutter instances
+✅ **Minimal Setup**: Only 3 method channel calls needed  
+✅ **Real-time Data**: Automatic Firebase synchronization  
+✅ **Lightweight**: Essential IoT features only  
+✅ **Independent**: No navigation dependencies  
+✅ **Flexible**: Use full screen or data-only integration  
+✅ **Android Native**: Seamless method channel communication  
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Firebase not initialized**: Ensure Firebase is properly configured in both Android and Flutter
-2. **State not updating**: Check that Firebase streams are active and network connectivity exists
-3. **Memory leaks**: Properly dispose of Flutter engines and listeners when not needed
-4. **Screen navigation**: Use cached engines for better performance when switching between screens
+1. **"Module not initialized"**: Call `CoreIoTModule.initialize()` first
+2. **No Firebase data**: Check internet connection and Firebase config
+3. **Method channel errors**: Ensure Flutter engine is properly initialized
+4. **State not updating**: Verify `startFirebaseStreams` was called
 
 ### Debug Commands
 
 ```bash
-# Check Flutter module integration
+# Verify Flutter module
 flutter doctor
 
-# Verify Firebase configuration
-flutter packages get
+# Check dependencies
+flutter pub get
+
+# Test Firebase connection
+flutter run --debug
 ```
 
-For more detailed examples, see the `example/` directory in this module.
+For complete examples, see the `android_example/` directory.
