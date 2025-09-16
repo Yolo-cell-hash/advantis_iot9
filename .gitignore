@@ -43,3 +43,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter module specific
+/.android/
+/.ios/
+
+# Firebase config files (sensitive)
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+
+# Flutter SDK (if included)
+flutter_sdk.tar.xz
+flutter_sdk/
+
+# Temporary files
+/tmp/
+*.tmp
