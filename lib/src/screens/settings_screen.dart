@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:advantis_iot/widgets/config_tiles.dart';
+import '../widgets/config_tiles.dart';
 import 'package:animate_do/animate_do.dart';
 
 class SettingsScreen extends StatefulWidget {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:advantis_iot/screens/home_screen.dart';
-import 'package:advantis_iot/widgets/ble_prompt_stack.dart';
-import 'package:advantis_iot/widgets/brand_logo_name.dart';
-import 'package:advantis_iot/widgets/privacy_conditions_hyper.dart';
+import 'home_screen.dart';
+import '../widgets/ble_prompt_stack.dart';
+import '../widgets/brand_logo_name.dart';
+import '../widgets/privacy_conditions_hyper.dart';
 
 
 class OnboardingScreen extends StatefulWidget {

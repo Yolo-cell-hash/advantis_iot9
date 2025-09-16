@@ -2,13 +2,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:advantis_iot/utils/app_state.dart';
+import 'app_state.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:flutter/material.dart';
-import 'package:advantis_iot/screens/landing_screen.dart';
+import '../screens/landing_screen.dart';
 
 
 class WebApi {
