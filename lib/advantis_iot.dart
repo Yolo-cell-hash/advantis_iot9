@@ -9,18 +9,26 @@
 /// - User authentication and onboarding
 /// - Device settings management
 /// - Notification handling
+/// - Dynamic state management for Android integration
 /// 
 /// ## Usage
 /// ```dart
 /// import 'package:advantis_iot/advantis_iot.dart';
 /// 
 /// // Initialize the module
-/// AdvantisIoTModule.initialize();
+/// await AdvantisIoTModule.initialize();
 /// 
-/// // Use screens in your app
-/// Navigator.push(context, MaterialPageRoute(
-///   builder: (context) => AdvantisIoTModule.homeScreen(),
-/// ));
+/// // Use complete app
+/// Widget app = AdvantisIoTModule.createApp();
+/// 
+/// // Use individual screens with automatic Firebase connection
+/// Widget homeScreen = AdvantisIoTModule.homeScreen();
+/// 
+/// // Access shared state
+/// AppState state = AdvantisIoTModule.sharedState;
+/// 
+/// // Manual Firebase control
+/// await AdvantisIoTModule.startFirebaseStreams(context);
 /// ```
 library advantis_iot;
 
@@ -38,3 +46,6 @@ export 'src/utils/utils.dart';
 
 // State management exports
 export 'src/providers/providers.dart';
+
+// Service exports
+export 'src/services/services.dart';
