@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:advantis_iot/screens/home_screen.dart';
+import '../screens/home_screen.dart';
 
 
 class BlePromptStack extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:advantis_iot/screens/home_screen.dart';
+import '../screens/home_screen.dart';
 import 'package:quickalert/quickalert.dart';
 
 import '../utils/app_state.dart';

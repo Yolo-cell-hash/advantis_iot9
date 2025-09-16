@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:advantis_iot/widgets/menu_widget.dart';
-import 'package:advantis_iot/widgets/home_screen_home_widget.dart';
-import 'package:advantis_iot/screens/settings_screen.dart';
-import 'package:advantis_iot/utils/web_api_brain.dart';
+import '../widgets/menu_widget.dart';
+import '../widgets/home_screen_home_widget.dart';
+import 'settings_screen.dart';
+import '../utils/web_api_brain.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-import 'package:advantis_iot/utils/app_state.dart';
+import '../utils/app_state.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});

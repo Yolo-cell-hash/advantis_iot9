@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:advantis_iot/screens/home_screen.dart';
-import 'package:advantis_iot/utils/web_api_brain.dart';
-import 'package:advantis_iot/utils/app_state.dart';
+import '../screens/home_screen.dart';
+import '../utils/web_api_brain.dart';
+import '../utils/app_state.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:vibration/vibration.dart';

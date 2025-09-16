@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:flutter/services.dart';
-import 'package:advantis_iot/utils/app_state.dart';
+import '../utils/app_state.dart';
 
 class MenuWidget extends StatefulWidget {
   const MenuWidget({super.key});

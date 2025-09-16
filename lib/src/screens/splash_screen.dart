@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:advantis_iot/screens/home_screen.dart';
-import 'package:advantis_iot/screens/onboarding_screen.dart';
+import 'home_screen.dart';
+import 'onboarding_screen.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
