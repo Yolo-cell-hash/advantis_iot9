@@ -25,7 +25,49 @@ dependencies:
 
 ## Quick Start
 
-### Flutter App Integration
+### Option 1: Minimal Module (Recommended for Android Integration)
+
+For integration into existing Android applications, use the minimal module:
+
+```dart
+import 'package:advantis_iot/minimal_advantis_iot.dart';
+
+void main() async {
+  // Initialize minimal module with Android integration
+  await MinimalAdvantisIoTModule.initialize(enableAndroidIntegration: true);
+  await MinimalAdvantisIoTModule.startMonitoring();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            // Your existing Android app content
+            YourExistingContent(),
+            
+            // Embed IoT dashboard
+            MinimalAdvantisIoTModule.createDashboard(),
+            
+            // Independent IoT screens
+            ElevatedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => MinimalAdvantisIoTModule.createStatusScreen(),
+              )),
+              child: Text('IoT Status'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Option 2: Full Module (Complete Flutter App)
 
 ```dart
 import 'package:advantis_iot/advantis_iot.dart';
@@ -45,9 +87,26 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-### Android App Integration
+## Module Options
 
-For integrating into existing Android applications, see the [Android Integration Guide](ANDROID_INTEGRATION.md).
+This package provides two integration options:
+
+### 🔥 Minimal Module (New - For Android Integration)
+- **Essential IoT monitoring only** (fire, window, lights)
+- **Completely independent screens** 
+- **Easy Android integration**
+- **Reduced dependencies and size**
+- **Perfect for embedding in existing apps**
+
+See [Minimal Integration Guide](MINIMAL_INTEGRATION.md) for details.
+
+### 📱 Full Module (Original)
+- **Complete IoT application**
+- **User authentication and onboarding**
+- **Multiple screens with navigation**
+- **Full feature set**
+
+See [Android Integration Guide](ANDROID_INTEGRATION.md) for the full module.
 
 ```kotlin
 // Android Activity
