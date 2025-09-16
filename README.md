@@ -1,14 +1,22 @@
 # Advantis IoT Flutter Module
 
-A comprehensive Flutter module for IoT device control and monitoring with real-time Firebase integration.
+A comprehensive Flutter module for IoT device control and monitoring with real-time Firebase integration. Now featuring a **minimal module** perfect for Android app integration.
 
 ## Features
 
+### Full Module
 - **Real-time device monitoring** - Monitor IoT devices with live updates
 - **Firebase integration** - Real-time data synchronization and push notifications  
 - **User authentication** - Secure onboarding and user management
 - **Device settings** - Configure and manage IoT device settings
 - **Multi-platform support** - Works on iOS and Android
+
+### 🎯 Minimal Module (NEW)
+- **Essential IoT monitoring only** - Fire detection, window status, lights control
+- **Completely independent screens** - No navigation dependencies
+- **Android integration ready** - Method channels and state callbacks
+- **Streamlined Firebase** - Automatic initialization and management
+- **Minimal footprint** - Reduced dependencies and app size
 
 ## Installation
 
@@ -22,13 +30,126 @@ dependencies:
 
 ## Usage
 
-### Basic Setup
+### 🚀 Quick Start with Minimal Module
+
+Perfect for integrating into existing Android apps:
 
 ```dart
 import 'package:advantis_iot/advantis_iot.dart';
 
 void main() async {
-  // Initialize the module before use
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize minimal IoT module
+  await MinimalAdvantisIoTModule.initialize(
+    enableAndroidIntegration: true,
+  );
+  
+  // Start monitoring
+  await MinimalAdvantisIoTModule.startMonitoring();
+  
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: YourExistingAppContent(),
+    );
+  }
+}
+
+class YourExistingAppContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          // Your existing app content
+          YourWidget(),
+          
+          // Embedded IoT dashboard - completely independent
+          MinimalAdvantisIoTModule.createDashboard(
+            compact: true,
+            height: 80,
+            onTap: () {
+              // Navigate to full IoT screen
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => MinimalAdvantisIoTModule.createStatusScreen(),
+              ));
+            },
+          ),
+          
+          // More of your content
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 📱 Independent Screens
+
+Each screen works completely independently:
+
+```dart
+// IoT Status Screen - completely standalone
+Widget statusScreen = MinimalAdvantisIoTModule.createStatusScreen(
+  onStateChanged: (state) {
+    // Handle state changes in your Android app
+    print('IoT state: $state');
+  },
+);
+
+// IoT Control Screen - independent device control
+Widget controlScreen = MinimalAdvantisIoTModule.createControlScreen(
+  onControlAction: (action, value) {
+    // Handle control actions
+    print('Control: $action = $value');
+  },
+);
+
+// Compact Dashboard - embeddable anywhere
+Widget dashboard = MinimalAdvantisIoTModule.createDashboard(
+  compact: true,
+  onStateChanged: (state) {
+    // React to IoT state changes
+    if (state['isFire'] == true) {
+      showFireAlert();
+    }
+  },
+);
+```
+
+### 🔄 Real-time State Access
+
+```dart
+// Get current IoT state
+Map<String, dynamic> state = MinimalAdvantisIoTModule.getCurrentState();
+
+// Check specific device statuses
+bool? fireDetected = MinimalAdvantisIoTModule.getFireStatus();
+bool? windowOpen = MinimalAdvantisIoTModule.getWindowStatus();  
+bool? lightsOn = MinimalAdvantisIoTModule.getLightsStatus();
+
+// Control devices
+await MinimalAdvantisIoTModule.controlLights(true);
+await MinimalAdvantisIoTModule.controlWindow(false);
+
+// Listen for state changes
+MinimalAdvantisIoTModule.addStateListener(() {
+  print('IoT state changed: ${MinimalAdvantisIoTModule.getCurrentState()}');
+});
+```
+
+### 🏠 Full Module Usage
+
+```dart
+import 'package:advantis_iot/advantis_iot.dart';
+
+void main() async {
+  // Initialize the full module
   await AdvantisIoTModule.initialize();
   runApp(MyApp());
 }
@@ -45,8 +166,6 @@ class MyApp extends StatelessWidget {
 ### Individual Screen Usage
 
 ```dart
-import 'package:advantis_iot/advantis_iot.dart';
-
 // Use individual screens in your navigation
 Navigator.push(
   context,
@@ -58,37 +177,62 @@ Navigator.push(
 );
 ```
 
-### Available Screens
+## Module Comparison
 
+| Feature | Full Module | Minimal Module |
+|---------|-------------|----------------|
+| **Use Case** | Complete IoT app | IoT monitoring widget |
+| **Screens** | 6+ screens with navigation | 3 independent screens |
+| **Dependencies** | Full authentication flow | Firebase + core only |
+| **Size** | Full app | Essential components only |
+| **Android Integration** | Complex setup | Simple method calls |
+| **Independence** | Screen dependencies exist | Fully independent screens |
+
+## Available Screens
+
+### Full Module
 - **SplashScreen** - App initialization screen
 - **HomeScreen** - Main IoT device control interface
 - **LandingScreen** - Landing page with navigation
 - **OnboardingScreen** - User onboarding flow
 - **SettingsScreen** - Device and app settings
 
-### Available Widgets
+### Minimal Module
+- **MinimalIoTStatusScreen** - Real-time device status display
+- **MinimalIoTControlScreen** - Device control interface
+- **MinimalIoTDashboard** - Embeddable status widget
 
-- **BrandLogoName** - Company branding component
-- **RoomInfoCard** - Device/room status display
-- **ConfigTiles** - Configuration option tiles
-- **IpPortTextfield** - Network configuration input
-- **MenuWidget** - Navigation menu
-- **BlePromptStack** - Bluetooth setup prompts
+## Android Integration
 
-### State Management
+### Method Channel Communication
 
-The module uses Provider for state management. Access app state:
+The minimal module automatically sets up method channels for Android communication:
 
-```dart
-import 'package:provider/provider.dart';
-import 'package:advantis_iot/advantis_iot.dart';
-
-// Access state in widgets
-Consumer<AppState>(
-  builder: (context, appState, child) {
-    return Text('Device Status: ${appState.update}');
-  },
-)
+```kotlin
+// In your Android MainActivity
+class MainActivity : FlutterActivity() {
+    private val CHANNEL = "advantis_iot/communication"
+    
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "onIoTStateChanged" -> {
+                        val state = call.arguments as Map<String, Any>
+                        handleIoTStateUpdate(state)
+                        result.success(true)
+                    }
+                    "onIoTAlert" -> {
+                        val alert = call.arguments as Map<String, Any>
+                        showIoTAlert(alert)
+                        result.success(true)
+                    }
+                }
+            }
+    }
+}
 ```
 
 ## Module Structure
@@ -97,24 +241,31 @@ Consumer<AppState>(
 lib/
 ├── advantis_iot.dart              # Main module export
 ├── src/
-│   ├── advantis_iot_module.dart   # Core module class
-│   ├── screens/                   # UI screens
-│   │   ├── screens.dart           # Screen exports
-│   │   ├── home_screen.dart
-│   │   ├── landing_screen.dart
-│   │   ├── onboarding_screen.dart
-│   │   ├── settings_screen.dart
-│   │   └── splash_screen.dart
+│   ├── advantis_iot_module.dart   # Full module class
+│   ├── minimal_advantis_iot_module.dart # Minimal module class
+│   ├── core/                      # Core IoT functionality
+│   │   ├── iot_state_manager.dart
+│   │   ├── minimal_firebase_service.dart
+│   │   └── core.dart
+│   ├── minimal_screens/           # Independent minimal screens
+│   │   ├── minimal_iot_status_screen.dart
+│   │   ├── minimal_iot_control_screen.dart
+│   │   ├── minimal_iot_dashboard.dart
+│   │   └── minimal_screens.dart
+│   ├── screens/                   # Full module screens
 │   ├── widgets/                   # Reusable components
-│   │   ├── widgets.dart           # Widget exports
-│   │   └── ...
+│   ├── services/                  # Integration services
+│   │   └── android_integration_service.dart
 │   ├── utils/                     # Utilities
-│   │   ├── utils.dart             # Utility exports
-│   │   ├── app_state.dart         # State management
-│   │   └── web_api_brain.dart     # API integration
 │   └── providers/                 # State providers
-│       └── providers.dart         # Provider exports
 ```
+
+## Quick Links
+
+- 📖 [Minimal Integration Guide](MINIMAL_INTEGRATION.md)
+- 🏗️ [Minimization Summary](MINIMIZATION_SUMMARY.md) 
+- 📱 [Android Integration Guide](ANDROID_INTEGRATION.md)
+- 💻 [Example Usage](example/minimal_example.dart)
 
 ## Dependencies
 
@@ -124,7 +275,6 @@ The module requires these dependencies:
 - Firebase Core & Database
 - Provider (state management)
 - HTTP (API communication)
-- Lottie (animations)
 - And other UI/utility packages (see pubspec.yaml)
 
 ## Configuration
@@ -135,7 +285,7 @@ The module requires these dependencies:
    - `android/app/google-services.json`
    - `ios/Runner/GoogleService-Info.plist`
 
-2. Configure Firebase in your main app before calling `AdvantisIoTModule.initialize()`
+2. Configure Firebase in your main app before calling module initialize
 
 ### Permissions
 
